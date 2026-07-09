@@ -3,3 +3,5 @@ packages:
   - spikes/*
 allowBuilds:
   esbuild: true
+overrides:
+  vite: '>=6.4.3'
