@@ -57,10 +57,17 @@ export function toQueries(selector: UnifiedSelector): UIA2Query[] {
       if (selector.name === undefined) {
         return [{ strategy: 'class name', selector: cls }];
       }
+      // Two variants, merged by the caller: classic widgets carry the label
+      // as text; React Native's accessible containers flatten child text into
+      // the content description.
       return [
         {
           strategy: '-android uiautomator',
           selector: `new UiSelector().className(${uiString(cls)}).text(${uiString(selector.name)})`,
+        },
+        {
+          strategy: '-android uiautomator',
+          selector: `new UiSelector().className(${uiString(cls)}).description(${uiString(selector.name)})`,
         },
       ];
     }
