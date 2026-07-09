@@ -16,6 +16,14 @@ export default defineConfig({
         appId: 'com.projectcrossplay.demo',
       },
     },
+    'android-rn': {
+      platform: 'android',
+      use: {
+        // release build: JS bundled into the APK, no Metro needed
+        apk: '../demo-android-rn/android/app/build/outputs/apk/release/app-release.apk',
+        appId: 'com.crossplaydemo',
+      },
+    },
   },
   timeout: 30_000,
   trace: 'on',
