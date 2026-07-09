@@ -20,8 +20,11 @@ function opt(name, fallback) {
 const target = opt('target');
 const runs = Number(opt('runs', '50'));
 const cwd = resolve(opt('cwd', 'examples/demo-web'));
-if (!target) {
+if (!target || !Number.isInteger(runs) || runs < 1) {
   console.error('usage: node tools/flake-farm.mjs --target <name> [--runs 50] [--cwd examples/demo-web]');
+  if (target && !(Number.isInteger(runs) && runs >= 1)) {
+    console.error(`  --runs must be a positive integer, got '${opt('runs', '50')}'`);
+  }
   process.exit(2);
 }
 

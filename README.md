@@ -52,7 +52,7 @@ pnpm install
 pnpm build && pnpm typecheck && pnpm test
 ```
 
-Node ≥ 20. See [CONTRIBUTING.md](CONTRIBUTING.md). Security policy: [SECURITY.md](SECURITY.md).
+Node 20.19+, 22.12+, or 24+ (matches the appium-uiautomator2-server dependency's range). See [CONTRIBUTING.md](CONTRIBUTING.md). Security policy: [SECURITY.md](SECURITY.md).
 
 ## License
 

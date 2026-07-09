@@ -220,7 +220,11 @@ export class ADBManager {
     for (const root of sdkRoots()) {
       const buildTools = join(root, 'build-tools');
       if (!existsSync(buildTools)) continue;
-      const versions = (await readdir(buildTools)).sort().reverse();
+      // Numeric-aware descending sort: lexicographic sort would rank "9.0.0"
+      // above "34.0.0" and pick the wrong "latest" build-tools directory.
+      const versions = (await readdir(buildTools)).sort((a, b) =>
+        b.localeCompare(a, undefined, { numeric: true, sensitivity: 'base' }),
+      );
       for (const v of versions) {
         for (const tool of ['aapt2', 'aapt']) {
           const bin = join(buildTools, v, tool);

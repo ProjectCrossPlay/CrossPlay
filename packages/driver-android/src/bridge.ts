@@ -37,7 +37,12 @@ export class BridgeError extends Error {
   }
 
   get isStaleElement(): boolean {
-    return this.uia2Error.includes('stale') || this.status === 404;
+    // W3C/JSONWP use 404 for several distinct error codes (stale element,
+    // no such element, no such window, unknown command…) — the status alone
+    // is ambiguous. Only the 'stale element reference' error code means
+    // stale; treating every 404 as stale would mask real failures behind
+    // "element just disappeared" (getElementState swallows this as absent).
+    return this.uia2Error.includes('stale');
   }
 }
 

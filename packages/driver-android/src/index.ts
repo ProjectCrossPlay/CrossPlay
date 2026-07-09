@@ -30,7 +30,15 @@ export { ADBManager } from './adb.js';
 export { AndroidBridge } from './bridge.js';
 export { toQueries } from './selectors.js';
 
-/** Server readiness ceiling — generous vs the ~1.6s measured, hard NFR-003 is 10s. */
+/**
+ * Ceiling for detecting a truly hung/unresponsive server — generous versus
+ * the ~1.6–2s measured startup (spike B-004, confirmed live in B-032) so a
+ * slow CI cold-start doesn't false-positive. This is NOT the NFR-003 budget:
+ * NFR-003's 10s session-startup target is measured and enforced separately
+ * (B-032 validation, the flake farm); a launch that takes anywhere near this
+ * ceiling has already blown that budget, and this timeout only exists to
+ * fail loudly instead of hanging forever.
+ */
 const SERVER_READY_TIMEOUT_MS = 30_000;
 
 export const driver: PlatformDriver = {
