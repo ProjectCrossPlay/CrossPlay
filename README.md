@@ -13,7 +13,7 @@ Teams with a web + mobile product maintain two test stacks today: Playwright/Cyp
 ## What v0.1 will look like
 
 ```ts
-import { test, by, expect } from '@projectcrossplay/core';
+import { test, by, expect } from '@projectcrossplay/core/test';
 
 test('login flow', async ({ app }) => {
   await app.fill(by.testId('username'), 'demo');
