@@ -10,9 +10,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+      # Node 24 for the toolchain: pnpm 11 needs node:sqlite (Node >= 22).
+      # Package engines remain >= 20; a dedicated Node-20 compat job is added
+      # with the test suite in Sprint 4 (B-042).
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
