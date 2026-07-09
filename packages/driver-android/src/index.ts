@@ -55,9 +55,21 @@ export const driver: PlatformDriver = {
     await adb.ensureServerInstalled(serial, apksDir, ctx.log);
 
     const appId = use.appId ?? (await adb.resolveAppId(use.apk!));
-    if (use.apk && !(await adb.isInstalled(serial, appId))) {
-      ctx.log(`installing ${appId}`);
-      await adb.install(serial, use.apk);
+    if (use.apk) {
+      if (!(await adb.isInstalled(serial, appId))) {
+        ctx.log(`installing ${appId}`);
+        await adb.install(serial, use.apk);
+      }
+    } else if (!(await adb.isInstalled(serial, appId))) {
+      // appId-only targets promise a preinstalled app — fail here with
+      // guidance instead of a cryptic adb error at launch time.
+      throw new CrossPlayError({
+        what: `app '${appId}' is not installed on ${serial}`,
+        next: [
+          `set targets.${target.name}.use.apk so CrossPlay can install it`,
+          `or install it yourself: adb -s ${serial} install <apk>`,
+        ],
+      });
     }
 
     // Clean slate: a stale instrumentation from a crashed run would hold 6790.
@@ -102,8 +114,10 @@ class AndroidSession implements DriverSession {
       try {
         for (const id of await this.bridge.findElements(q.strategy, q.selector)) seen.add(id);
       } catch (e) {
-        // "no such element" style responses mean zero matches, not failure.
-        if (!(e instanceof BridgeError)) throw e;
+        // Only "no such element" means zero matches; anything else (invalid
+        // selector, dead session, 5xx) is a real failure and must surface —
+        // swallowing it would make auto-wait spin on a broken query.
+        if (!(e instanceof BridgeError && e.uia2Error.includes('no such element'))) throw e;
       }
     }
     return [...seen].map((id) => ({ id }));

@@ -108,7 +108,16 @@ export class ADBManager {
 
   /** Install the two UIA2 server APKs if missing (one-time per device, FR-022). */
   async ensureServerInstalled(serial: string, apksDir: string, log: (m: string) => void): Promise<void> {
-    const entries = await readdir(apksDir);
+    let entries: string[];
+    try {
+      entries = await readdir(apksDir);
+    } catch {
+      throw new CrossPlayError({
+        what: 'bundled UIAutomator2 server APKs not found',
+        why: [`${apksDir} is missing or unreadable`],
+        next: ['reinstall @projectcrossplay/driver-android (its appium-uiautomator2-server dependency ships them)'],
+      });
+    }
     const serverApk = entries.find((f) => f.endsWith('.apk') && !f.includes('androidTest'));
     const testApk = entries.find((f) => f.endsWith('.apk') && f.includes('androidTest'));
     if (!serverApk || !testApk) {
