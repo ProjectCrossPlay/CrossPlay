@@ -93,9 +93,10 @@ jobs:
           arch: x86_64
           profile: pixel_5
           disable-animations: true
-          script: |
-            cd examples/demo-web
-            pnpm exec crossplay test --target android-kotlin
+          # android-emulator-runner runs each script line as its own shell
+          # invocation, so a `cd` on its own line doesn't carry over — chain
+          # with && on one line instead.
+          script: cd examples/demo-web && pnpm exec crossplay test --target android-kotlin
       - name: Upload traces
         if: failure()
         uses: actions/upload-artifact@v4
