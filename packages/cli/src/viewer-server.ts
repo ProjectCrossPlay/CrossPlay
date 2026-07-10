@@ -12,7 +12,7 @@ import { randomBytes } from 'node:crypto';
 import { createReadStream, existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { createServer, type Server } from 'node:http';
-import { dirname, extname, join, normalize } from 'node:path';
+import { dirname, extname, join, normalize, sep } from 'node:path';
 import { CrossPlayError } from '@projectcrossplay/core';
 
 const CONTENT_TYPES: Record<string, string> = {
@@ -73,8 +73,13 @@ export async function startViewerServer(tracePath: string): Promise<ViewerServer
 
     const path = normalize(rel === '/' ? '/index.html' : rel).replace(/^(\.\.[/\\])+/, '');
     const filePath = join(dist, path);
-    // Refuse to serve anything outside dist/ (defense in depth vs path traversal).
-    if (!filePath.startsWith(dist)) {
+    // Refuse to serve anything outside dist/ (defense in depth vs path
+    // traversal). Without the trailing separator, a bare startsWith(dist)
+    // would also match a sibling directory like dist-evil/ that merely
+    // shares the prefix — join()'s own '..'-collapsing already prevents
+    // real traversal, but this check must not have that gap regardless.
+    const distRoot = dist.endsWith(sep) ? dist : dist + sep;
+    if (!filePath.startsWith(distRoot)) {
       res.writeHead(403).end('forbidden');
       return;
     }
