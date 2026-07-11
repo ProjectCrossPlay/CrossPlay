@@ -195,5 +195,38 @@ jobs:
           "
           npx crossplay test --target web
 
+  # B-105-08: proves the MCP server actually works end to end — a real MCP
+  # client, over real stdio, driving the real built binary against the live
+  # demo-web example (real chromium run, real trace read back), the same
+  # "actually prove it" spirit as quickstart-smoke above.
+  mcp-smoke:
+    name: mcp server smoke test
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm --filter @projectcrossplay/driver-web exec playwright install --with-deps chromium
+      - name: Start demo server
+        working-directory: examples/demo-web
+        run: nohup node server.mjs > server.log 2>&1 &
+      - name: Wait for demo server
+        run: for i in $(seq 1 20); do curl -sf http://127.0.0.1:4173/ >/dev/null && exit 0; sleep 0.5; done; echo "server never came up"; exit 1
+      - name: Run MCP smoke test
+        working-directory: packages/mcp-server
+        run: node scripts/smoke.mjs
+      - name: Upload traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: traces-mcp-smoke
+          path: examples/demo-web/.crossplay/traces
+
   # Flake farm (B-035) + soak/leak test (B-043) run nightly, not per-push —
   # see .github/workflows/nightly.yml.
