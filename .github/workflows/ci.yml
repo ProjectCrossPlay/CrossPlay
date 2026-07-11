@@ -158,16 +158,21 @@ jobs:
         run: |
           mkdir -p /tmp/quickstart-smoke && cd /tmp/quickstart-smoke
           npm init -y >/dev/null
+          # Resolve tarball paths dynamically (version-agnostic)
+          CLI_TGZ=$(ls /tmp/tarballs/projectcrossplay-cli-*.tgz)
+          CORE_TGZ=$(ls /tmp/tarballs/projectcrossplay-core-*.tgz)
+          WEB_TGZ=$(ls /tmp/tarballs/projectcrossplay-driver-web-*.tgz)
+          VIEWER_TGZ=$(ls /tmp/tarballs/projectcrossplay-trace-viewer-*.tgz)
           node -e "
             const fs = require('fs');
             const pkg = JSON.parse(fs.readFileSync('package.json'));
-            pkg.overrides = { '@projectcrossplay/trace-viewer': 'file:/tmp/tarballs/projectcrossplay-trace-viewer-0.1.0-dev.0.tgz' };
+            pkg.overrides = { '@projectcrossplay/trace-viewer': 'file:$VIEWER_TGZ' };
             fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));
           "
           npm install -D \
-            @projectcrossplay/cli@file:/tmp/tarballs/projectcrossplay-cli-0.1.0-dev.0.tgz \
-            @projectcrossplay/core@file:/tmp/tarballs/projectcrossplay-core-0.1.0-dev.0.tgz \
-            @projectcrossplay/driver-web@file:/tmp/tarballs/projectcrossplay-driver-web-0.1.0-dev.0.tgz
+            @projectcrossplay/cli@file:$CLI_TGZ \
+            @projectcrossplay/core@file:$CORE_TGZ \
+            @projectcrossplay/driver-web@file:$WEB_TGZ
           npx crossplay init
           test -f crossplay.config.mts # the scaffolded file must be unambiguously ESM
           npx crossplay doctor
