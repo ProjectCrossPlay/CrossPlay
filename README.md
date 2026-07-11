@@ -46,6 +46,7 @@ crossplay test --target=all   # same spec: Chromium + Firefox + WebKit + Android
 | [`@projectcrossplay/driver-android`](packages/driver-android) | UIAutomator2-backed driver over ADB |
 | [`@projectcrossplay/cli`](packages/cli) | `init` · `doctor` · `test` · `show-trace` |
 | [`@projectcrossplay/trace-viewer`](packages/trace-viewer) | Local trace viewer (self-contained, localhost-only) |
+| [`@projectcrossplay/mcp-server`](packages/mcp-server) | Expose CrossPlay to AI agents over MCP — ⚠️ run inside a sandbox, see the package README |
 
 The `spikes/` directory holds the validation spikes behind the architecture decisions — including live-measured UIAutomator2 session startup of **1.57s** ([results](spikes/uia2-bridge/RESULTS.md)).
 
@@ -57,6 +58,7 @@ The `spikes/` directory holds the validation spikes behind the architecture deci
 - [Architecture](docs/architecture.md) — how the pieces fit together
 - [Writing a driver](docs/driver-plugin.md) — implement `PlatformDriver` for another platform
 - [API reference](docs/api-reference.md) — generated from types
+- [MCP server](docs/mcp-server.md) — expose CrossPlay to AI agents; ⚠️ read the trust model before enabling it
 
 ## Development
 
